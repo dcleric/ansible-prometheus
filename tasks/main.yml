@@ -37,6 +37,7 @@
     - "{{ prometheus_rules_dir }}"
     - "{{ prometheus_file_sd_config_dir }}"
     - "{{ prometheus_db_dir }}"
+    - "{{ prometheus_log_dir }}"
 
 - name: create prometheus extra directories
   file:
@@ -88,10 +89,6 @@
   notify:
     - restart prometheus
 
-- name: determing your system using systemd or upstart
-  shell: cat /proc/1/comm
-  register: init_type 
- 
 - name: create systemd service unit
   template:
     src: etc/systemd/system/prometheus.service.j2
@@ -99,10 +96,10 @@
     owner: root
     group: root
     mode: 0644
+  when: ansible_service_mgr == 'systemd' 
   notify:
     - service reenable
     - restart prometheus
-  when: "'systemd' in init_type.stdout"
 
 - name: create upstart service for prometheus
   template:
@@ -111,10 +108,9 @@
     owner: root
     group: root
     mode: 0644
+  when: ansible_service_mgr == 'upstart'
   notify:
-          #    - service reenable
     - restart prometheus
-  when: "'init' in init_type.stdout"
 
 
 - name: ensure prometheus service is enabled
