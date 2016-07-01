@@ -11,4 +11,5 @@ script
  exec >> "{{ prometheus_log_dir }}"/prometheus.log
  exec 2>&1
  exec {{ prometheus_bin_dir }}/prometheus {% for flag, flag_value in prometheus_config_flags.iteritems() %}-{{ flag }}={{ flag_value }} {% endfor %}
+
 end script
